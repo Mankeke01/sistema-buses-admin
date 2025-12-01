@@ -19,19 +19,24 @@ mapboxgl.accessToken = "pk.eyJ1IjoidWx0aW1hdGUtcmFrb3IiLCJhIjoiY21nY3B3cTlkMHM3Z
 type ViewState = 'dashboard' | 'rutas' | 'choferes' | 'reportes' | 'config';
 
 // ----------------------------------------------------------------------
-// 1. COMPONENTES DEL PANEL ADMIN
+// 1. COMPONENTES DEL PANEL ADMIN (Sidebar, Header, Dashboard)
 // ----------------------------------------------------------------------
 
 interface SidebarProps { currentView: ViewState; onNavigate: (view: ViewState) => void; }
 
+// --- SIDEBAR COMPONENT (Actualizado para Tema Claro/Oscuro) ---
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
-  <aside className="w-64 bg-gray-900 dark:bg-black text-white h-screen fixed top-0 left-0 flex flex-col shadow-2xl z-20 transition-colors duration-300">
+  <aside className="w-64 h-screen fixed top-0 left-0 flex flex-col shadow-2xl z-20 transition-colors duration-300 
+    bg-white text-gray-800 border-r border-gray-200 
+    dark:bg-black dark:text-white dark:border-gray-900">
+    
     <div className="p-6">
       <h1 className="text-2xl font-extrabold leading-tight">
         Precisión en<br/>
-        <span className="text-blue-400">Ruta</span>
+        <span className="text-[#000080] dark:text-blue-400">Ruta</span>
       </h1>
     </div>
+    
     <nav className="flex-1 space-y-1 px-2">
       <NavItem icon="📊" text="Dashboard" active={currentView === 'dashboard'} onClick={() => onNavigate('dashboard')} />
       <NavItem icon="🛣️" text="Gestión de Rutas" active={currentView === 'rutas'} onClick={() => onNavigate('rutas')} />
@@ -39,8 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
       <NavItem icon="📈" text="Reportes" active={currentView === 'reportes'} onClick={() => onNavigate('reportes')} />
       <NavItem icon="⚙️" text="Configuración" active={currentView === 'config'} onClick={() => onNavigate('config')} />
     </nav>
-    <div className="p-4 mt-auto border-t border-gray-800 dark:border-gray-900">
-        <div className="flex items-center gap-2 text-sm text-gray-400">
+    
+    <div className="p-4 mt-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             Sistema Operativo
         </div>
@@ -49,8 +55,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
 );
 
 interface NavItemProps { icon: string; text: string; active: boolean; onClick: () => void; }
+
+// --- NAV ITEM (Botones del menú adaptables) ---
 const NavItem: React.FC<NavItemProps> = ({ icon, text, active, onClick }) => (
-  <button onClick={onClick} className={`w-full flex items-center space-x-3 py-3 px-4 rounded-lg text-left transition-all duration-200 cursor-pointer ${active ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white dark:hover:bg-gray-900'}`}>
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center space-x-3 py-3 px-4 rounded-lg text-left transition-all duration-200 cursor-pointer ${
+      active 
+        ? 'bg-[#000080] text-white shadow-md dark:bg-blue-600' 
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white'
+    }`}
+  >
     <span className="text-xl">{icon}</span><span className="font-medium">{text}</span>
   </button>
 );
@@ -112,7 +127,7 @@ const DashboardContent = ({ initialCenter, initialZoom }: { initialCenter: [numb
 };
 
 // ----------------------------------------------------------------------
-// 2. PANEL ADMIN
+// 2. LAYOUT DEL PANEL ADMIN
 // ----------------------------------------------------------------------
 const AdminPanel = () => {
   const [center] = useState<[number, number]>([-73.24402, -39.81289]);
@@ -153,7 +168,7 @@ const AdminPanel = () => {
 }
 
 // ----------------------------------------------------------------------
-// 3. SEGURIDAD
+// 3. SEGURIDAD Y REDIRECCIONES
 // ----------------------------------------------------------------------
 
 const RutaProtegida = ({ children }: { children: ReactNode }) => {
@@ -168,6 +183,7 @@ const RutaProtegida = ({ children }: { children: ReactNode }) => {
   }, []);
 
   if (loading) return <div className="h-screen flex items-center justify-center dark:bg-gray-950 dark:text-white">Cargando...</div>;
+  
   if (!session) return <Navigate to="/login" replace />; 
 
   return <>{children}</>;
@@ -181,18 +197,18 @@ const LoginWrapper = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) navigate("/admin");
     });
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") navigate("/admin");
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // CORRECCIÓN: Aquí es donde estaba el error. Quitamos props innecesarias.
   return <Login />;
 };
 
 // ----------------------------------------------------------------------
-// 4. APP PRINCIPAL
+// 4. APP PRINCIPAL (ROUTER)
 // ----------------------------------------------------------------------
 function App() {
   return (
