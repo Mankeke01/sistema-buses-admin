@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 export const LandingPasajero = () => {
   // 👇 LINK "TRUCADO" DE GOOGLE DRIVE DEL PASAJERO
   // Recuerda reemplazar "TU_ID_DEL_PASAJERO" con el ID real de tu archivo en Drive
-  const linkPasajero = "https://drive.google.com/file/d/1ngIemOjuzgMO-8Dov6D1CdCjIbprGnhS/view"; 
-
+const linkPasajero = "https://drive.google.com/uc?export=download&id=1ngIemOjuzgMO-8Dov6D1CdCjIbprGnhS";
   return (
     <div className="min-h-screen flex flex-col items-center justify-center font-sans transition-colors duration-300 bg-gray-50 dark:bg-gray-950">
       

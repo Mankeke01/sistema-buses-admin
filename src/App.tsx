@@ -24,20 +24,22 @@ type ViewState = 'dashboard' | 'rutas' | 'choferes' | 'reportes' | 'config';
 
 interface SidebarProps { currentView: ViewState; onNavigate: (view: ViewState) => void; }
 
-// --- SIDEBAR COMPONENT (Actualizado para Tema Claro/Oscuro) ---
+// --- SIDEBAR MEJORADO ---
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
-  <aside className="w-64 h-screen fixed top-0 left-0 flex flex-col shadow-2xl z-20 transition-colors duration-300 
-    bg-white text-gray-800 border-r border-gray-200 
-    dark:bg-black dark:text-white dark:border-gray-900">
+  <aside className="w-64 h-screen fixed top-0 left-0 flex flex-col z-20 transition-colors duration-300
+    /* Claro: Blanco con borde derecho y sombra suave */
+    bg-white border-r border-slate-200 shadow-sm
+    /* Oscuro: Slate 900 (Gris azulado oscuro) con borde oscuro */
+    dark:bg-slate-900 dark:border-slate-800">
     
     <div className="p-6">
-      <h1 className="text-2xl font-extrabold leading-tight">
+      <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-slate-800 dark:text-white">
         Precisión en<br/>
         <span className="text-[#000080] dark:text-blue-400">Ruta</span>
       </h1>
     </div>
     
-    <nav className="flex-1 space-y-1 px-2">
+    <nav className="flex-1 space-y-1 px-3 py-4">
       <NavItem icon="📊" text="Dashboard" active={currentView === 'dashboard'} onClick={() => onNavigate('dashboard')} />
       <NavItem icon="🛣️" text="Gestión de Rutas" active={currentView === 'rutas'} onClick={() => onNavigate('rutas')} />
       <NavItem icon="🚌" text="Gestión de Chóferes" active={currentView === 'choferes'} onClick={() => onNavigate('choferes')} />
@@ -45,8 +47,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
       <NavItem icon="⚙️" text="Configuración" active={currentView === 'config'} onClick={() => onNavigate('config')} />
     </nav>
     
-    <div className="p-4 mt-auto border-t border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+    <div className="p-4 mt-auto border-t border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             Sistema Operativo
         </div>
@@ -56,24 +58,41 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => (
 
 interface NavItemProps { icon: string; text: string; active: boolean; onClick: () => void; }
 
-// --- NAV ITEM (Botones del menú adaptables) ---
+// --- NAV ITEM MEJORADO ---
 const NavItem: React.FC<NavItemProps> = ({ icon, text, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center space-x-3 py-3 px-4 rounded-lg text-left transition-all duration-200 cursor-pointer ${
+    className={`w-full flex items-center space-x-3 py-3 px-4 rounded-xl text-left transition-all duration-200 font-medium ${
       active 
-        ? 'bg-[#000080] text-white shadow-md dark:bg-blue-600' 
-        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white'
+        /* Activo Claro: Azul corporativo, texto blanco, sombra */
+        ? 'bg-[#000080] text-white shadow-md shadow-blue-900/10 scale-[1.02] ' 
+        /* Activo Oscuro: Azul brillante */
+        + 'dark:bg-blue-600 dark:shadow-blue-900/20'
+        
+        /* Inactivo Claro: Gris texto, hover gris claro */
+        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 '
+        /* Inactivo Oscuro: Gris claro texto, hover gris oscuro */
+        + 'dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
     }`}
   >
-    <span className="text-xl">{icon}</span><span className="font-medium">{text}</span>
+    <span className="text-xl">{icon}</span>
+    <span>{text}</span>
   </button>
 );
 
 const Header = ({ onLogout }: { onLogout: () => void }) => (
-  <header className="bg-white dark:bg-gray-900 shadow-sm h-16 px-8 flex justify-between items-center z-10 sticky top-0 transition-colors duration-300">
-    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Panel de Administración</h2>
-    <button onClick={onLogout} className="bg-red-50 hover:bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium py-2 px-4 rounded-lg transition-colors text-sm cursor-pointer">
+  <header className="h-16 px-8 flex justify-between items-center z-10 sticky top-0 transition-colors duration-300
+    /* Claro: Blanco con borde inferior */
+    bg-white/80 backdrop-blur-md border-b border-slate-200 
+    /* Oscuro: Slate 900 con borde inferior */
+    dark:bg-slate-900/80 dark:border-slate-800">
+    
+    <h2 className="text-lg font-bold text-slate-800 dark:text-white">Panel de Administración</h2>
+    
+    <button onClick={onLogout} 
+      className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100
+      dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30 dark:hover:bg-red-900/40
+      font-medium py-2 px-4 rounded-lg transition-colors text-sm cursor-pointer">
       Cerrar Sesión
     </button>
   </header>
@@ -108,18 +127,18 @@ const DashboardContent = ({ initialCenter, initialZoom }: { initialCenter: [numb
   }, [initialCenter, initialZoom]);
 
   return (
-    <div className="flex-1 p-8 h-full overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6 flex justify-between items-center transition-colors">
+    <div className="flex-1 p-8 h-full overflow-hidden flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-6 flex justify-between items-center transition-colors">
         <div>
-           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Vista General de la Flota</h2>
-           <p className="text-gray-500 dark:text-gray-400">Monitoreo satelital en tiempo real.</p>
+           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Vista General de la Flota</h2>
+           <p className="text-slate-500 dark:text-slate-400">Monitoreo satelital en tiempo real.</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full border border-green-100 dark:border-green-800">
            <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
            Conexión en Vivo
         </div>
       </div>
-      <div className="flex-1 bg-gray-200 dark:bg-gray-800 rounded-xl shadow-inner border border-gray-300 dark:border-gray-700 relative overflow-hidden">
+      <div className="flex-1 bg-slate-200 dark:bg-slate-800 rounded-xl shadow-inner border border-slate-300 dark:border-slate-700 relative overflow-hidden">
          <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
       </div>
     </div>
@@ -147,7 +166,7 @@ const AdminPanel = () => {
       case 'choferes': return <GestionChoferes />;
       case 'config': return <Configuracion />;
       default: return (
-        <div className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-600">
+        <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-600">
           <div className="text-center"><span className="text-4xl mb-4 block">🚧</span><p>Módulo en construcción</p></div>
         </div>
       );
@@ -155,11 +174,11 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="flex bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-300">
+    <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen font-sans transition-colors duration-300">
       <Sidebar currentView={currentView} onNavigate={setCurrentView} />
       <div className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
         <Header onLogout={handleLogout} />
-        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 relative transition-colors duration-300">
+        <main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
           {renderContent()}
         </main>
       </div>
@@ -182,8 +201,7 @@ const RutaProtegida = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  if (loading) return <div className="h-screen flex items-center justify-center dark:bg-gray-950 dark:text-white">Cargando...</div>;
-  
+  if (loading) return <div className="h-screen flex items-center justify-center dark:bg-slate-950 dark:text-white">Cargando...</div>;
   if (!session) return <Navigate to="/login" replace />; 
 
   return <>{children}</>;

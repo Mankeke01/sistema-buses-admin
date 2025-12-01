@@ -1,27 +1,23 @@
 @import "tailwindcss";
 
-/* 1. Definimos la variante 'dark' manualmente para v4 */
-/* Esto le dice: "Si el padre tiene la clase .dark, aplica los estilos oscuros" */
 @variant dark (&:where(.dark, .dark *));
 
-/* 2. Configuramos los colores base y la transición suave */
 @layer base {
-  /* Por defecto (Modo Claro) */
   html {
-    background-color: #f9fafb; /* gray-50 */
-    color: #111827;            /* gray-900 */
+    /* MODO CLARO: Gris muy suave, no blanco puro */
+    background-color: #f8fafc; /* slate-50 */
+    color: #0f172a;            /* slate-900 */
   }
 
-  /* Cuando está activo el Modo Oscuro */
   html.dark {
-    background-color: #030712; /* gray-950 (Casi negro) */
-    color: #f3f4f6;            /* gray-100 */
-    color-scheme: dark;        /* Esto oscurece la barra de scroll automáticamente */
+    /* MODO OSCURO: Azul muy oscuro (slate), no negro puro */
+    background-color: #020617; /* slate-950 */
+    color: #e2e8f0;            /* slate-200 */
+    color-scheme: dark;
   }
 
-  /* Hacemos que TODO cambie de color suavemente */
   body {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-property: color, background-color, border-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 300ms;
   }
