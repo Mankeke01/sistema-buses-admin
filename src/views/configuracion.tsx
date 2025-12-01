@@ -12,7 +12,7 @@ export default function Configuracion() {
 
   // 1. Cargar preferencia de tema al iniciar
   useEffect(() => {
-    // Verificar si la clase 'dark' ya está en el HTML
+    // Verificar si la clase 'dark' ya está en el HTML (cargada desde localStorage en main.tsx o index.html)
     const isDarkMode = document.documentElement.classList.contains('dark');
     setIsDark(isDarkMode);
   }, []);
@@ -61,7 +61,7 @@ export default function Configuracion() {
   };
 
   return (
-    <div className="p-8 h-full overflow-y-auto bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="p-8 h-full overflow-y-auto bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       
       <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Configuración del Sistema</h2>
 
@@ -121,7 +121,7 @@ export default function Configuracion() {
             </div>
 
             {message && (
-              <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
                 {message.text}
               </div>
             )}

@@ -1,4 +1,3 @@
-// 1. IMPORTAMOS ReactNode AQUÍ
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
@@ -20,7 +19,7 @@ mapboxgl.accessToken = "pk.eyJ1IjoidWx0aW1hdGUtcmFrb3IiLCJhIjoiY21nY3B3cTlkMHM3Z
 type ViewState = 'dashboard' | 'rutas' | 'choferes' | 'reportes' | 'config';
 
 // ----------------------------------------------------------------------
-// 1. COMPONENTES DEL PANEL ADMIN (Sidebar, Header, Dashboard)
+// 1. COMPONENTES DEL PANEL ADMIN
 // ----------------------------------------------------------------------
 
 interface SidebarProps { currentView: ViewState; onNavigate: (view: ViewState) => void; }
@@ -113,7 +112,7 @@ const DashboardContent = ({ initialCenter, initialZoom }: { initialCenter: [numb
 };
 
 // ----------------------------------------------------------------------
-// 2. LAYOUT DEL PANEL ADMIN
+// 2. PANEL ADMIN
 // ----------------------------------------------------------------------
 const AdminPanel = () => {
   const [center] = useState<[number, number]>([-73.24402, -39.81289]);
@@ -154,10 +153,9 @@ const AdminPanel = () => {
 }
 
 // ----------------------------------------------------------------------
-// 3. SEGURIDAD Y REDIRECCIONES
+// 3. SEGURIDAD
 // ----------------------------------------------------------------------
 
-// 2. CAMBIAMOS JSX.Element POR ReactNode PARA CORREGIR EL ERROR
 const RutaProtegida = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
@@ -170,8 +168,6 @@ const RutaProtegida = ({ children }: { children: ReactNode }) => {
   }, []);
 
   if (loading) return <div className="h-screen flex items-center justify-center dark:bg-gray-950 dark:text-white">Cargando...</div>;
-  
-  // Usamos replace para que no puedan volver atrás
   if (!session) return <Navigate to="/login" replace />; 
 
   return <>{children}</>;
@@ -185,20 +181,18 @@ const LoginWrapper = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) navigate("/admin");
     });
-    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") navigate("/admin");
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  return <Login onLogin={function (): void {
-    throw new Error("Function not implemented.");
-  } } />;
+  // CORRECCIÓN: Aquí es donde estaba el error. Quitamos props innecesarias.
+  return <Login />;
 };
 
 // ----------------------------------------------------------------------
-// 4. APP PRINCIPAL (ROUTER)
+// 4. APP PRINCIPAL
 // ----------------------------------------------------------------------
 function App() {
   return (
