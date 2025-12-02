@@ -1,6 +1,21 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
 import { QrChofer } from "../components/QrChofer";
+
+// ==============================================================================
+// ⚠️ CONFIGURACIÓN ADMIN
+// ==============================================================================
+const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqemN1Z3J0d2ttdmdrb3RmbWR6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDQ1MTMxMywiZXhwIjoyMDc2MDI3MzEzfQ.QAJLcO_2pL-KXWc4d21wDQilOPBQxGJ7bIIchuq20Is";
+const PROJECT_URL = "https://wjzcugrtwkmvgkotfmdz.supabase.co"; 
+
+// Cliente Admin
+const supabaseAdmin = createClient(PROJECT_URL, SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 // --- TIPOS Y ESTADOS ---
 type DriverState = "Disponible" | "En Ruta" | "Inactivo";
@@ -22,6 +37,9 @@ interface Route {
 
 // Extendemos para incluir password en el formulario
 type DriverForm = Omit<Driver, "id_chofer" | "ruta"> & { password?: string };
+
+// Tipo específico para el payload de la base de datos (sin id_chofer ni objeto ruta)
+type DriverPayload = Omit<Driver, "id_chofer" | "ruta">;
 
 // --- INTERFAZ PARA EL MODAL ---
 interface ModalProps {
@@ -64,7 +82,7 @@ export default function GestionChoferes() {
     telefono: "",
     estado: "Disponible",
     id_ruta_actual: null,
-    password: "", // Campo contraseña inicializado
+    password: "", 
   });
 
   // 1. CARGAR DATOS
@@ -133,9 +151,8 @@ export default function GestionChoferes() {
         return;
     }
 
-    // Payload básico para actualizar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const payload: any = {
+    // Payload correctamente tipado
+    const payload: DriverPayload = {
       nombre: form.nombre,
       email: form.email,
       telefono: form.telefono,
@@ -143,53 +160,59 @@ export default function GestionChoferes() {
       id_ruta_actual: form.id_ruta_actual === 0 ? null : form.id_ruta_actual
     };
 
-    if (current) {
-      // --- MODO EDICIÓN (UPDATE SIMPLE) ---
-      // Aquí solo actualizamos los datos de la tabla, no tocamos el usuario Auth
-      const { error } = await supabase
-        .from('chofer')
-        .update(payload)
-        .eq('id_chofer', current.id_chofer);
+    try {
+        setLoading(true);
 
-      if (error) alert("Error actualizando: " + error.message);
-      else fetchData();
-      
-    } else {
-      // --- MODO CREACIÓN (INSERT CON RPC) ---
-      // Aquí llamamos a la función SQL que crea Usuario Auth + Ficha Chofer a la vez
-      const { error } = await supabase.rpc('crear_chofer_con_auth', {
-        nombre_input: form.nombre,
-        email_input: form.email,
-        password_input: form.password, // Enviamos la contraseña
-        telefono_input: form.telefono,
-        estado_input: form.estado,
-        id_ruta_input: payload.id_ruta_actual
-      });
+        if (current) {
+            // --- MODO EDICIÓN (UPDATE SIMPLE) ---
+            const { error } = await supabase
+                .from('chofer')
+                .update(payload)
+                .eq('id_chofer', current.id_chofer);
 
-      if (error) {
-        console.error(error);
-        // Fallback: Si no existe la RPC, intentamos insert normal (sin auth)
-        if (error.message.includes('function not found')) {
-             const { error: insertError } = await supabase.from('chofer').insert([payload]);
-             if (insertError) alert("Error creando chofer: " + insertError.message);
-             else {
-                alert("⚠️ Chofer creado en tabla, pero NO se creó el usuario Auth (Falta función SQL).");
-                fetchData();
-             }
+            if (error) throw error;
         } else {
-            alert("Error al crear usuario: " + error.message);
+            // --- MODO CREACIÓN (ADMIN CLIENT) ---
+            
+            // 1. Crear Usuario en Auth
+            const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                email: form.email,
+                password: form.password,
+                email_confirm: true, // Confirmar email automáticamente
+                user_metadata: { full_name: form.nombre, role: 'chofer' }
+            });
+
+            if (authError) throw new Error("Error Auth: " + authError.message);
+
+            // 2. Crear Ficha en tabla pública
+            const { error: dbError } = await supabase
+                .from('chofer')
+                .insert([payload]);
+
+            if (dbError) {
+                // Si falla la DB, borramos el usuario Auth para no dejar basura (opcional)
+                if (authData.user) await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+                throw new Error("Error DB: " + dbError.message);
+            }
+            
+            alert("✅ Usuario y Chofer creados correctamente.");
         }
-      } else {
-        alert("✅ Usuario y Chofer creados correctamente.");
+
         fetchData();
-      }
+        setModalOpen(false);
+
+    } catch (error: unknown) {
+        console.error(error);
+        const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido";
+        alert(errorMessage);
+    } finally {
+        setLoading(false);
     }
-    setModalOpen(false);
   };
 
   // 3. ELIMINAR
   const handleDelete = async (id: number) => {
-    if (window.confirm("¿Eliminar a este chófer? (El usuario perderá acceso)")) {
+    if (window.confirm("¿Eliminar a este chófer? (Nota: El usuario de acceso debe eliminarse manualmente en Supabase Auth)")) {
       const { error } = await supabase
         .from('chofer')
         .delete()
@@ -359,7 +382,7 @@ export default function GestionChoferes() {
         </div>
       </Modal>
 
-      {/* MODAL QR */}
+      {/* MODAL QR (APP INSTALACIÓN) */}
       <Modal open={qrModalOpen} onClose={() => setQrModalOpen(false)} title="Instalación App Chofer">
          <div className="flex flex-col items-center justify-center">
             <p className="text-sm text-slate-500 dark:text-gray-400 mb-4 text-center px-4">
