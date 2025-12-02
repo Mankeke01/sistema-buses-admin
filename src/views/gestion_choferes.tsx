@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { QrChofer } from "../components/QrChofer";
 
 // ==============================================================================
-// ⚠️ CONFIGURACIÓN ADMIN
+// ⚠️ CONFIGURACIÓN ADMIN (Necesario para crear usuarios sin cerrar sesión)
 // ==============================================================================
 const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqemN1Z3J0d2ttdmdrb3RmbWR6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDQ1MTMxMywiZXhwIjoyMDc2MDI3MzEzfQ.QAJLcO_2pL-KXWc4d21wDQilOPBQxGJ7bIIchuq20Is";
 const PROJECT_URL = "https://wjzcugrtwkmvgkotfmdz.supabase.co"; 
@@ -38,7 +38,7 @@ interface Route {
 // Extendemos para incluir password en el formulario
 type DriverForm = Omit<Driver, "id_chofer" | "ruta"> & { password?: string };
 
-// Tipo específico para el payload de la base de datos (sin id_chofer ni objeto ruta)
+// Definición del tipo para el payload de la base de datos
 type DriverPayload = Omit<Driver, "id_chofer" | "ruta">;
 
 // --- INTERFAZ PARA EL MODAL ---
