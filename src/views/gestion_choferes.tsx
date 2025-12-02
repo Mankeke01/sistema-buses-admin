@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { QrChofer } from "../components/QrChofer";
 
 // ==============================================================================
-// ⚠️ CONFIGURACIÓN ADMIN (Necesario para crear usuarios sin cerrar sesión)
+// ⚠️ CONFIGURACIÓN ADMIN
 // ==============================================================================
 const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqemN1Z3J0d2ttdmdrb3RmbWR6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDQ1MTMxMywiZXhwIjoyMDc2MDI3MzEzfQ.QAJLcO_2pL-KXWc4d21wDQilOPBQxGJ7bIIchuq20Is";
 const PROJECT_URL = "https://wjzcugrtwkmvgkotfmdz.supabase.co"; 
@@ -151,7 +151,7 @@ export default function GestionChoferes() {
         return;
     }
 
-    // Payload correctamente tipado
+    // Payload correctamente tipado (SIN ANY)
     const payload: DriverPayload = {
       nombre: form.nombre,
       email: form.email,
