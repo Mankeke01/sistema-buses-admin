@@ -1,8 +1,8 @@
 import QRCode from "react-qr-code";
 
 export const QrChofer = () => {
-  // 👇 Enlace de VISTA PREVIA de Google Drive (ID: 1ngIemOjuzgMO-8Dov6D1CdCjIbprGnhS)
-  const linkChofer = "https://drive.google.com/file/d/1ngIemOjuzgMO-8Dov6D1CdCjIbprGnhS/view";
+  // 👇 Enlace de VISTA PREVIA de Google Drive (ID: 1D5Zz3jsAy7yGkdNF4OEhVJ-twYvR4PHH)
+  const linkChofer = "https://drive.google.com/file/d/1D5Zz3jsAy7yGkdNF4OEhVJ-twYvR4PHH/view";
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col items-center transition-colors duration-300">
@@ -18,7 +18,7 @@ export const QrChofer = () => {
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-300 mt-4 text-center font-medium">
-        Escanea para ir a la descarga
+        Escanea para descargar la App Chofer
       </p>
     </div>
   );

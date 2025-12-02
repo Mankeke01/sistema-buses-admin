@@ -1,65 +1,73 @@
+import { useRef, useCallback } from "react";
 import QRCode from "react-qr-code";
+import { toPng } from 'html-to-image';
 
 export const QrPasajero = () => {
-  // 👇 Tu link de la landing page
+  // 👇 Link de tu Landing Page
   const linkLanding = "https://sistema-buses-admin.vercel.app"; 
+  
+  // Referencia al elemento que queremos "fotografiar"
+  const ref = useRef<HTMLDivElement>(null);
 
-  // Función mágica para descargar el QR como imagen
-  const downloadQr = () => {
-    const svg = document.getElementById("qr-code-svg");
-    if (!svg) return;
+  const downloadSticker = useCallback(() => {
+    if (ref.current === null) {
+      return;
+    }
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL("image/png");
-      
-      const downloadLink = document.createElement("a");
-      downloadLink.download = "QR-Bus-Pasajeros.png";
-      downloadLink.href = pngFile;
-      downloadLink.click();
-    };
-
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-  };
+    // Convertimos el elemento a PNG
+    toPng(ref.current, { cacheBust: true, backgroundColor: '#ffffff' })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = 'Sticker-Bus-Imprimible.png';
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error('Error al generar la imagen:', err);
+        alert("Hubo un error al descargar. Intenta de nuevo.");
+      });
+  }, [ref]);
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="bg-white p-6 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center max-w-sm w-full shadow-lg" id="qr-container">
-        <div className="text-center mb-4">
-          <h3 className="text-xl font-bold text-[#000080] uppercase tracking-wider">¡Descarga la App!</h3>
-          <p className="text-sm text-gray-500">Escanea para ver el bus en tiempo real</p>
+      
+      {/* ESTE ES EL CONTENEDOR QUE SE VA A DESCARGAR */}
+      {/* Usamos 'ref' para identificarlo, es más seguro que el ID */}
+      <div 
+        ref={ref}
+        className="bg-white p-8 rounded-xl border-4 border-dashed border-slate-300 flex flex-col items-center text-center max-w-sm w-full shadow-sm"
+      >
+        <div className="mb-5">
+          <h3 className="text-2xl font-black text-[#000080] uppercase tracking-wide leading-none mb-1">
+            ¡DESCARGA LA APP!
+          </h3>
+          <p className="text-sm text-slate-500 font-medium">
+            Escanea para ver el bus en tiempo real
+          </p>
         </div>
 
-        <div className="bg-white p-2 rounded-lg border border-gray-100">
+        {/* Contenedor del QR */}
+        <div className="bg-white p-2 rounded-lg border-2 border-slate-100">
           <QRCode 
-            id="qr-code-svg" // ID importante para la descarga
             value={linkLanding} 
-            size={200} 
-            fgColor="#000080" 
+            size={220} 
+            fgColor="#000080" // Azul corporativo
             bgColor="#ffffff"
           />
         </div>
 
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-400 mt-2">
-            *Pega este código en la entrada del bus
+        <div className="mt-5">
+          <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">
           </p>
         </div>
       </div>
 
-      {/* BOTÓN DE DESCARGA REAL */}
+      {/* BOTÓN DE DESCARGA */}
       <button 
-        onClick={downloadQr}
-        className="mt-6 bg-[#000080] hover:bg-blue-900 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-transform active:scale-95 flex items-center gap-2"
+        onClick={downloadSticker}
+        className="mt-6 bg-[#000080] hover:bg-blue-900 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform active:scale-95 flex items-center gap-2 cursor-pointer"
       >
-        📥 Descargar Imagen (PNG)
+        🖨️ Descargar Sticker (PNG)
       </button>
     </div>
   );
